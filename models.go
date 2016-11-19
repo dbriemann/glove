@@ -2,6 +2,7 @@ package glove
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"sort"
 	"strconv"
@@ -12,14 +13,14 @@ type Word struct {
 	freq uint32
 }
 
-// WordsByFreq enables the sort interface to sort a slice of words in:
+// Vocabulary is a slice of words. It is sortable by
 // 1) descending frequency order, then
 //  2) ascending alphabetical order.
-type WordsByFreq []Word
+type Vocabulary []Word
 
-func (w WordsByFreq) Len() int      { return len(w) }
-func (w WordsByFreq) Swap(i, j int) { w[i], w[j] = w[j], w[i] }
-func (w WordsByFreq) Less(i, j int) bool {
+func (w Vocabulary) Len() int      { return len(w) }
+func (w Vocabulary) Swap(i, j int) { w[i], w[j] = w[j], w[i] }
+func (w Vocabulary) Less(i, j int) bool {
 	if w[i].freq == w[j].freq {
 		return w[i].word < w[j].word
 	}
@@ -33,7 +34,7 @@ type WordFrequencies struct {
 }
 
 // NewWordFrequenciesFromFile creates a new word to frequencies mapping from a corpus text file.
-func NewWordFrequenciesFromFile(fname string) (WordFrequencies, error) {
+func LoadWordFrequenciesFromFile(fname string) (WordFrequencies, error) {
 	wf := WordFrequencies{
 		words: map[string]uint32{},
 	}
@@ -56,8 +57,8 @@ func NewWordFrequenciesFromFile(fname string) (WordFrequencies, error) {
 }
 
 // Sorted returns a slice of Words ordered by frequency (descending).
-func (wf *WordFrequencies) Sorted() WordsByFreq {
-	wbf := make(WordsByFreq, len(wf.words))
+func (wf *WordFrequencies) Sorted() Vocabulary {
+	wbf := make(Vocabulary, len(wf.words))
 
 	i := 0
 	for w, f := range wf.words {
@@ -81,6 +82,8 @@ func (wf *WordFrequencies) Write(fname string, minFreq uint32) error {
 	defer f.Close()
 
 	sorted := wf.Sorted()
+
+	fmt.Println("SORTED", len(sorted))
 
 	for _, wo := range sorted {
 		if wo.freq < minFreq {
