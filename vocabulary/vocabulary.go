@@ -16,7 +16,8 @@ func main() {
 	flag.Parse()
 
 	if *corpus == "" {
-		fmt.Println("You must specifiy a corpus file.")
+		fmt.Println("You must specifiy a corpus file.\n")
+		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
@@ -25,7 +26,8 @@ func main() {
 		panic(err)
 	}
 
-	if err = wf.Write(*output, uint32(*minCount)); err != nil {
+	vocab := wf.ToVocabulary()
+	if err = vocab.Write(*output, uint32(*minCount)); err != nil {
 		panic(err)
 	}
 }
